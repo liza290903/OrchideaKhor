@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-content">
+        <h2>Цветочный магазин "Орхидея"</h2>
+        <p>Соберем и доставим за 90 минут в любую точку района имени Лазо</p>
+        <a href="{{ url_for('catalog') }}" class="btn">Посмотреть каталог</a>
+    </div>
+</section>
+
+<section class="bestsellers bestsellers-background">
+    <div class="container">
+        <h2 class="section-title">Хиты продаж</h2>
+        <div class="products-grid">
+            {% for product in bestsellers %}
+            <div class="product-card" id="product-{{ product.id }}">
+                <div class="product-image-container">
+                    <img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}" class="product-image">
+                    <div class="bestseller-badge">
+                        <i class="fas fa-star"></i> Хит
+                    </div>
+                </div>
+                <div class="product-details">
+                    <h3 class="product-name">{{ product.name }}</h3>
+                    <p class="product-description">{{ product.description }}</p>
+                    <p class="product-price">{{ product.price }} руб.</p>
+                    
+                    <button class="btn btn-add-to-cart" 
+                            data-product-id="{{ product.id }}"
+                            data-product-name="{{ product.name }}"
+                            data-product-price="{{ product.price }}"
+                            data-product-image="{{ product.image }}">
+                        <i class="fas fa-shopping-cart"></i> В корзину
+                    </button>
+                    <div class="added-to-cart-message" style="display: none;">
+                        <i class="fas fa-check"></i> Добавлено!
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="no-products">
+                <p>Администратор пока не выбрал хиты продаж</p>
+                <a href="{{ url_for('catalog') }}" class="btn">Перейти в каталог</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.btn-add-to-cart').forEach(button => {
+            button.addEventListener('click', async function() {
+                const productId = this.dataset.productId;
+                const productName = this.dataset.productName;
+                const productPrice = parseFloat(this.dataset.productPrice);
+                const productImage = this.dataset.productImage;
+                
+                try {
+                    const response = await fetch('{{ url_for("add_to_cart_ajax") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            product_id: productId,
+                            name: productName,
+                            price: productPrice,
+                            image: productImage
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        // Показываем сообщение "Добавлено"
+                        const message = this.nextElementSibling;
+                        this.style.display = 'none';
+                        message.style.display = 'block';
+                        
+                        // Обновляем счетчик корзины в шапке
+                        updateCartCounter(result.cart_count);
+                        
+                        // Через 2 секунды возвращаем кнопку
+                        setTimeout(() => {
+                            this.style.display = '';
+                            message.style.display = 'none';
+                        }, 2000);
+                    }
+                } catch (error) {
+                    console.error('Ошибка:', error);
+                }
+            });
+        });
+        
+        function updateCartCounter(count) {
+            const cartCounter = document.querySelector('.cart-counter');
+            if (cartCounter) {
+                cartCounter.textContent = `(${count})`;
+            }
+        }
+    });
+</script>
+    
+<style>
+    /* Добавление фона в раздел хитов продаж */
+    .bestsellers-background {
+        background-image: url("/static/images/background.jpg"); /* путь к изображению */
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-attachment: fixed;
+        color: #fff;
+    }
+
+    .btn-add-to-cart {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s;
+        width: 100%;
+    }
+
+    .btn-add-to-cart:hover {
+        background-color: #218838;
+    }
+
+    .added-to-cart-message {
+        color: #28a745;
+        font-weight: bold;
+        text-align: center;
+        padding: 8px 0;
+        display: none;
+    }
+    .bestsellers {
+    text-align: center; /* Центрируем весь блок */
+}
+    .section-title {
+        font-size: 2rem;
+        font-weight: bold;
+        text-align: center;
+        color: #232323; /* Черный цвет текста */
+        background-color: rgba(255, 218, 185, 0.7); /* Персиковый фон с прозрачностью */
+        padding: 1px 15px; /* Меньше отступов по вертикали и чуть больше по горизонтали */
+        border-radius: 15px;
+        display: inline-block; /* Делает фон чуть меньше по размеру текста */
+        text-decoration: none; /* Убирает подчеркивание */
+        border: none; /* Убирает любые границы */
+        outline: none; /
+    }
+
+</style>
+    
+<section class="features">
+    <div class="feature">
+        <i class="fas fa-shipping-fast"></i>
+        <h3>Быстрая доставка</h3>
+        <p>Доставим ваш заказ в течение 90 минут</p>
+    </div>
+    <div class="feature">
+        <i class="fas fa-award"></i>
+        <h3>Качественные цветы</h3>
+        <p>Только свежие и красивые букеты</p>
+    </div>
+    <div class="feature">
+        <i class="fas fa-gift"></i>
+        <h3>Подарочная упаковка</h3>
+        <p>Бесплатная упаковка для всех букетов</p>
+    </div>
+</section>
+
+{% endblock %}

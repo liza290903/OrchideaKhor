@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Вход в панель администратора</h2>
+<form method="post" class="login-form">
+    <div class="form-group">
+        <label for="username">Логин:</label>
+        <input type="text" id="username" name="username" required>
+    </div>
+    <div class="form-group">
+        <label for="password">Пароль:</label>
+        <input type="password" id="password" name="password" required>
+    </div>
+    <button type="submit" class="btn">Войти</button>
+</form>
+{% endblock %}

@@ -1,0 +1,385 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="about-page">
+    <div class="about-container">
+        <div class="about-header">
+            <h1><i class="fas fa-store-alt"></i> О цветочном магазине <span class="highlight-text">"Орхидея"</span></h1>
+            <div class="header-decoration">
+                <div class="decoration-line"></div>
+                <i class="fas fa-spa decoration-icon"></i>
+                <div class="decoration-line"></div>
+            </div>
+        </div>
+
+        <div class="about-section intro-section">
+            <div class="section-image">
+                <img src="{{ url_for('static', filename='images/shop_interior.jpg') }}" alt="Интерьер магазина">
+            </div>
+            <div class="section-text">
+                <p>Цветочный магазин <strong>«Орхидея»</strong> был основан в посёлке Хор Хабаровского края с одной простой и доброй целью — <span class="emphasized-text">дарить людям радость через красоту живых цветов</span>.</p>
+                <p>С самого начала мы сделали ставку на <strong>качество, доступность и индивидуальный подход</strong>. Благодаря прямым поставкам от отечественных тепличных хозяйств и партнёрствам с проверенными дистрибьюторами, мы ежедневно предлагаем жителям посёлка Хор и ближайших населённых пунктов <span class="emphasized-text">свежие, яркие и стойкие цветы</span>.</p>
+            </div>
+        </div>
+
+        <div class="about-section activity-section">
+            <h2><i class="fas fa-seedling"></i> Чем мы занимаемся</h2>
+            <p>Магазин <strong>«Орхидея»</strong> — это <span class="emphasized-text">не просто продажа цветов</span>. Мы предлагаем:</p>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fas fa-birthday-cake"></i>
+                    <h3>Готовые букеты</h3>
+                    <p>На <strong>любой случай</strong>: от скромного знака внимания до роскошных праздничных букетов</p>
+                </div>
+                
+                <div class="feature-card">
+                    <i class="fas fa-palette"></i>
+                    <h3>Индивидуальные заказы</h3>
+                    <p>Создадим <span class="emphasized-text">уникальную композицию</span> по вашему желанию</p>
+                </div>
+                
+                <div class="feature-card">
+                    <i class="fas fa-gift"></i>
+                    <h3>Сопутствующие товары</h3>
+                    <p><strong>Мягкие игрушки, открытки, декоративные элементы</strong> — всё для идеального подарка</p>
+                </div>
+                
+                <div class="feature-card">
+                    <i class="fas fa-glass-cheers"></i>
+                    <h3>Оформление мероприятий</h3>
+                    <p><span class="emphasized-text">Свадьбы, юбилеи, корпоративы</span> — создадим праздничную атмосферу</p>
+                </div>
+            </div>
+            
+            <div class="cta-block">
+                <p>Мы с радостью поможем, если вы хотите <strong>порадовать близкого человека</strong>, поздравить коллегу или украсить особенное событие. <span class="emphasized-text">Даже если вы забыли про важную дату</span> — не беда: мы поможем вам исправить ситуацию и подарить тёплые эмоции.</p>
+            </div>
+        </div>
+
+        <div class="about-section advantages-section">
+            <h2><i class="fas fa-award"></i> Наши преимущества</h2>
+            
+            <div class="advantages-list">
+                <div class="advantage-item">
+                    <div class="advantage-icon">
+                        <i class="fas fa-fan"></i>
+                    </div>
+                    <div class="advantage-text">
+                        <h3>Всегда свежие цветы</h3>
+                        <p><strong>Поставки каждый день</strong> прямо от лучших поставщиков</p>
+                    </div>
+                </div>
+                
+                <div class="advantage-item">
+                    <div class="advantage-icon">
+                        <i class="fas fa-tags"></i>
+                    </div>
+                    <div class="advantage-text">
+                        <h3>Доступные цены</h3>
+                        <p>Формируем ассортимент <span class="emphasized-text">с учётом бюджета местных жителей</span></p>
+                    </div>
+                </div>
+                
+                <div class="advantage-item">
+                    <div class="advantage-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <div class="advantage-text">
+                        <h3>Индивидуальный подход</h3>
+                        <p>От простой розы до <strong>авторского букета</strong> - учтём все пожелания</p>
+                    </div>
+                </div>
+                
+                <div class="advantage-item">
+                    <div class="advantage-icon">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <div class="advantage-text">
+                        <h3>Гибкая система доставки</h3>
+                        <p>Возможность заказа с <span class="emphasized-text">получением в магазине или доставкой по району им. Лазо</span></p>
+                    </div>
+                </div>
+                
+                <div class="advantage-item">
+                    <div class="advantage-icon">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <div class="advantage-text">
+                        <h3>Опытные флористы</h3>
+                        <p>Наши сотрудники <strong>любят своё дело</strong> и с душой подходят к каждому заказу</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="philosophy-block">
+            <div class="philosophy-icon">
+                <i class="fas fa-quote-left"></i>
+            </div>
+            <p class="philosophy-text">Мы верим, что <strong>цветы — это способ говорить без слов</strong>. И каждый букет, сделанный в «Орхидее», — это не просто композиция, а переданная забота, внимание и любовь.</p>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Основные стили страницы */
+.about-page {
+    font-family: 'Arial', sans-serif;
+    background-color: #fff9f7;
+    padding: 40px 0;
+    color: #333;
+}
+
+.about-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Заголовок страницы */
+.about-header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.about-header h1 {
+    font-family: 'Playfair Display', serif;
+    color: #000000;
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+}
+
+.highlight-text {
+    color: #fb6969;
+    font-weight: 700;
+}
+
+.header-decoration {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    max-width: 400px;
+}
+
+.decoration-line {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #fb6969, transparent);
+    flex-grow: 1;
+}
+
+.decoration-icon {
+    color: #fd6c5c;
+    margin: 0 15px;
+    font-size: 1.5rem;
+}
+
+/* Секции */
+.about-section {
+    margin-bottom: 60px;
+    background: white;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.about-section h2 {
+    color: #fb6969;
+    font-family: 'Playfair Display', serif;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-weight: 600;
+}
+
+.intro-section {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+}
+
+.section-image {
+    flex: 1;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.section-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.section-text {
+    flex: 1;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.section-text p {
+    margin-bottom: 20px;
+}
+
+.emphasized-text {
+    color: #d14d4d;
+    font-weight: 600;
+}
+
+/* Особенности */
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+    margin: 30px 0;
+}
+
+.feature-card {
+    background: #fff9f7;
+    border-radius: 8px;
+    padding: 25px;
+    text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+    border: 1px solid #ffe8e8;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.feature-card i {
+    color: #fb6969;
+    font-size: 2rem;
+    margin-bottom: 15px;
+}
+
+.feature-card h3 {
+    color: #333;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+}
+
+.feature-card p {
+    color: #666;
+    font-size: 0.95rem;
+}
+
+.cta-block {
+    background: #fef0f5;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 30px;
+    border-left: 4px solid #fb6969;
+}
+
+/* Преимущества */
+.advantages-list {
+    margin-top: 30px;
+}
+
+.advantage-item {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 25px;
+    align-items: flex-start;
+}
+
+.advantage-icon {
+    background: #fef0f5;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.advantage-icon i {
+    color: #fb6969;
+    font-size: 1.3rem;
+}
+
+.advantage-text h3 {
+    color: #fb6969;
+    margin-bottom: 5px;
+    font-size: 1.1rem;
+}
+
+.advantage-text p {
+    color: #666;
+    line-height: 1.5;
+}
+
+/* Философия */
+.philosophy-block {
+    background: linear-gradient(135deg, #fb6969, #ff6b9e);
+    color: white;
+    padding: 40px;
+    border-radius: 10px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    margin-top: 50px;
+}
+
+.philosophy-block::before {
+    content: '';
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 200px;
+    height: 200px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+}
+
+.philosophy-icon {
+    font-size: 3rem;
+    opacity: 0.2;
+    margin-bottom: 20px;
+}
+
+.philosophy-text {
+    font-size: 1.3rem;
+    font-style: italic;
+    line-height: 1.6;
+    position: relative;
+    z-index: 1;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .intro-section {
+        flex-direction: column;
+    }
+    
+    .about-header h1 {
+        font-size: 2rem;
+    }
+    
+    .philosophy-text {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .about-section {
+        padding: 20px;
+    }
+    
+    .feature-card {
+        padding: 20px 15px;
+    }
+    
+    .philosophy-block {
+        padding: 30px 20px;
+    }
+}
+</style>
+{% endblock %}

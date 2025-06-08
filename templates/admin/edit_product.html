@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Редактирование товара</h2>
+<form action="{{ url_for('update_product', id=product.id) }}" method="post" enctype="multipart/form-data">
+    <!-- CSRF защита -->
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    
+    <div class="form-group">
+        <label for="name">Название*</label>
+        <input type="text" id="name" name="name" value="{{ product.name }}" required>
+    </div>
+    
+    <div class="form-group">
+        <label for="description">Описание</label>
+        <textarea id="description" name="description">{{ product.description }}</textarea>
+    </div>
+    
+    <div class="form-group">
+        <label for="price">Цена*</label>
+        <input type="number" id="price" name="price" step="0.01" value="{{ product.price }}" required>
+    </div>
+    
+    <!-- Добавляем поле категории -->
+    <div class="form-group">
+        <label for="category">Категория*</label>
+        <select id="category" name="category" required>
+            <option value="Букеты" {% if product.category == 'Букеты' %}selected{% endif %}>Букеты</option>
+            <option value="Мягкие игрушки" {% if product.category == 'Мягкие игрушки' %}selected{% endif %}>Мягкие игрушки</option>
+            <option value="Шарики" {% if product.category == 'Шарики' %}selected{% endif %}>Шарики</option>
+        </select>
+    </div>
+    
+    <!-- Добавляем чекбокс бестселлера -->
+    <div class="form-group">
+        <label>
+            <input type="checkbox" name="is_bestseller" {% if product.is_bestseller %}checked{% endif %}>
+            Хит продаж
+        </label>
+    </div>
+    
+    <div class="form-group">
+        <label for="image">Изображение</label>
+        <input type="file" id="image" name="image">
+        {% if product.image %}
+        {% endif %}
+    </div>
+    
+    <button type="submit" class="btn btn-primary">Сохранить</button>
+    <a href="{{ url_for('admin_panel') }}" class="btn btn-secondary">Отмена</a>
+</form>
+{% endblock %}

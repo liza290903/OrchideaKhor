@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="catalog">
+    <div class="container">
+        <div class="category-header">
+            <h1 class="category-title">
+                {% if category == 'all' %}
+                    Все товары
+                {% elif category == 'Букеты' %}
+                    <i class="fas fa-spa"></i> Каталог букетов
+                {% elif category == 'Мягкие игрушки' %}
+                    <i class="fas fa-paw"></i> Каталог мягких игрушек
+                {% elif category == 'Шарики' %}
+                    <i class="fas fa-birthday-cake"></i> Каталог шариков
+                {% else %}
+                    Каталог
+                {% endif %}
+            </h1>
+        </div>
+        
+        <div class="category-tabs">
+            <a href="{{ url_for('catalog', category='Букеты') }}" 
+               class="tab-btn {% if category == 'Букеты' %}active{% endif %}">
+               Букеты
+            </a>
+            <a href="{{ url_for('catalog', category='Мягкие игрушки') }}" 
+               class="tab-btn {% if category == 'Мягкие игрушки' %}active{% endif %}">
+               Мягкие игрушки
+            </a>
+            <a href="{{ url_for('catalog', category='Шарики') }}" 
+               class="tab-btn {% if category == 'Шарики' %}active{% endif %}">
+               Шарики
+            </a>
+        </div>
+    </div>
+    
+    <div class="products-grid">
+        {% if not products %}
+            <div class="empty-catalog">
+                <i class="fas fa-box-open"></i>
+                <p>В этой категории пока нет товаров</p>
+                <a href="{{ url_for('catalog', category='all') }}" class="btn">
+                    Посмотреть все товары
+                </a>
+            </div>
+        {% else %}
+            {% for product in products %}
+            <div class="product-card">
+                <div class="product-image-container">
+                    <img src="{{ url_for('static', filename=product.image) }}" 
+                         alt="{{ product.name }}" 
+                         class="product-image">
+                    {% if product.is_bestseller %}
+                    <div class="bestseller-badge">
+                        <i class="fas fa-star"></i> Хит
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="product-details">
+                    <h3>{{ product.name }}</h3>
+                    <p class="product-description">{{ product.description }}</p>
+                    <p class="product-price">{{ product.price }} руб.</p>
+                    <button class="btn btn-add-to-cart" 
+                            data-product-id="{{ product.id }}"
+                            data-product-name="{{ product.name }}"
+                            data-product-price="{{ product.price }}"
+                            data-product-image="{{ product.image }}">
+                        <i class="fas fa-shopping-cart"></i> В корзину
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.btn-add-to-cart').forEach(btn => {
+        btn.addEventListener('click', async function() {
+            const product = {
+                product_id: this.dataset.productId,
+                name: this.dataset.productName,
+                price: parseFloat(this.dataset.productPrice),
+                image: this.dataset.productImage
+            };
+
+            try {
+                const response = await fetch("{{ url_for('add_to_cart') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify(product)
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    document.querySelector('.cart-counter').textContent = result.cart_count;
+                    showToast(`${product.name} добавлен в корзину!`, 'success');
+                } else {
+                    showToast(result.error || 'Ошибка при добавлении в корзину', 'error');
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                showToast('Ошибка соединения', 'error');
+            }
+        });
+    });
+
+    function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => toast.classList.add('show'), 10);
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => document.body.removeChild(toast), 300);
+        }, 3000);
+    }
+});
+</script>
+
+<style>
+.toast-notification {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #28a745;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.toast-notification.show {
+    opacity: 1;
+}
+
+.btn-add-to-cart {
+    background-color: #e83e8c;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 100%;
+}
+
+.btn-add-to-cart:hover {
+    background-color: #d62e7c;
+}
+
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+.product-card {
+    border: 1px solid #eee;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.3s;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.product-image-container {
+    position: relative;
+    height: 200px;
+}
+
+.product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.product-details {
+    padding: 15px;
+}
+
+.product-price {
+    font-weight: bold;
+    color: #e83e8c;
+    font-size: 1.2rem;
+    margin: 10px 0;
+}
+
+.bestseller-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #ffc107;
+    color: #000;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.empty-catalog {
+    text-align: center;
+    grid-column: 1 / -1;
+    padding: 40px;
+    color: #777;
+}
+
+.empty-catalog i {
+    font-size: 3rem;
+    margin-bottom: 20px;
+    color: #ddd;
+}
+</style>
+{% endblock %}

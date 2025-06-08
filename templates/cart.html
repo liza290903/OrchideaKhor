@@ -1,0 +1,322 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="cart-container">
+    <h2 class="cart-title"><i class="fas fa-shopping-cart"></i> Ваша корзина</h2>
+    
+    {% if not session.cart or not session.cart.items() %}
+        <div class="empty-cart">
+            <i class="fas fa-shopping-cart fa-3x"></i>
+            <p>Ваша корзина пуста</p>
+            <a href="{{ url_for('catalog') }}" class="btn btn-primary">
+                <i class="fas fa-arrow-left"></i> Продолжить покупки
+            </a>
+        </div>
+    {% else %}
+        <div class="cart-items-list">
+            {% for item_id, item in session.cart.items() %}
+            <div class="cart-item-card" data-item-id="{{ item_id }}">
+                <div class="item-image-container">
+                    <img src="{{ url_for('static', filename=item.image) }}" 
+                         alt="{{ item.name }}" 
+                         class="cart-item-image">
+                </div>
+                
+                <div class="item-info">
+                    <h3 class="item-name">{{ item.name }}</h3>
+                    <div class="item-price-quantity">
+                        <span class="item-price">{{ "%.2f"|format(item.price) }} руб.</span>
+                        <span class="item-quantity">× {{ item.quantity }}</span>
+                    </div>
+                    
+                    <div class="item-controls">
+                        <form action="{{ url_for('remove_from_cart', item_id=item_id) }}" method="post" class="remove-form">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-remove" title="Удалить">
+                                <i class="fas fa-trash-alt"></i> Удалить
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="cart-summary">
+            <div class="summary-total">
+                <span>Итого:</span>
+                <span class="total-price">{{ "%.2f"|format(total) }} руб.</span>
+            </div>
+            
+            <div class="cart-actions">
+                <form action="{{ url_for('clear_cart') }}" method="post" class="clear-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-clear">
+                        <i class="fas fa-broom"></i> Очистить корзину
+                    </button>
+                </form>
+                
+                <a href="{{ url_for('order') }}" class="btn btn-checkout">
+                    <i class="fas fa-credit-card"></i> Оформить заказ
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    /* Стили для корзины */
+    .cart-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .cart-title {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #333;
+    }
+    
+    .empty-cart {
+        text-align: center;
+        padding: 40px 0;
+    }
+    
+    .empty-cart i {
+        color: #ddd;
+        margin-bottom: 15px;
+    }
+    
+    .empty-cart p {
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+    }
+    
+    .cart-items-list {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .cart-item-card {
+        display: flex;
+        gap: 20px;
+        padding: 15px;
+        border: 1px solid #eee;
+        border-radius: 8px;
+        background: white;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+    
+    .item-image-container {
+        width: 120px;
+        height: 120px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        border-radius: 4px;
+        background: #f8f9fa;
+    }
+    
+    .cart-item-image {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+    
+    .item-info {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .item-name {
+        margin: 0 0 10px 0;
+        font-size: 1.1rem;
+    }
+    
+    .item-price-quantity {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+    
+    .item-price {
+        font-weight: bold;
+        color: #e83e8c;
+    }
+    
+    .item-quantity {
+        color: #6c757d;
+    }
+    
+    .item-controls {
+        margin-top: auto;
+    }
+    
+    .btn-remove {
+        background-color: #f8f9fa;
+        color: #dc3545;
+        border: 1px solid #dc3545;
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .btn-remove:hover {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    .cart-summary {
+        margin-top: 30px;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    
+    .summary-total {
+        display: flex;
+        justify-content: space-between;
+        font-size: 1.2rem;
+        font-weight: bold;
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+        margin-bottom: 20px;
+    }
+    
+    .total-price {
+        color: #28a745;
+    }
+    
+    .cart-actions {
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+    }
+    
+    .btn-clear {
+        background-color: #f8f9fa;
+        color: #6c757d;
+        border: 1px solid #6c757d;
+    }
+    
+    .btn-clear:hover {
+        background-color: #6c757d;
+        color: white;
+    }
+    
+    .btn-checkout {
+        background-color: #28a745;
+        color: white;
+        border: 1px solid #28a745;
+    }
+    
+    .btn-checkout:hover {
+        background-color: #218838;
+        border-color: #1e7e34;
+    }
+    
+    @media (max-width: 576px) {
+        .cart-item-card {
+            flex-direction: column;
+        }
+        
+        .item-image-container {
+            width: 100%;
+            height: 150px;
+        }
+        
+        .cart-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Обработка удаления товара
+    document.querySelectorAll('.remove-form').forEach(form => {
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const itemCard = this.closest('.cart-item-card');
+            const itemId = itemCard.dataset.itemId;
+            
+            try {
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': this.querySelector('[name="csrf_token"]').value
+                    },
+                    body: JSON.stringify({})
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Анимация удаления
+                    itemCard.style.opacity = '0';
+                    setTimeout(() => {
+                        itemCard.remove();
+                        
+                        // Обновляем счетчик корзины
+                        document.querySelector('.cart-counter').textContent = result.cart_count;
+                        
+                        // Обновляем итоговую сумму
+                        document.querySelector('.total-price').textContent = 
+                            result.new_total.toFixed(2) + ' руб.';
+                        
+                        // Если корзина пуста, перезагружаем страницу
+                        if (result.cart_count === 0) {
+                            location.reload();
+                        }
+                    }, 300);
+                } else {
+                    alert('Ошибка: ' + (result.error || 'Не удалось удалить товар'));
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert('Ошибка соединения с сервером');
+            }
+        });
+    });
+    
+    // Обработка очистки корзины
+    document.querySelector('.clear-form')?.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        if (confirm('Вы уверены, что хотите очистить корзину?')) {
+            try {
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': this.querySelector('[name="csrf_token"]').value
+                    },
+                    body: JSON.stringify({})
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    location.reload();
+                } else {
+                    alert('Ошибка: ' + (result.error || 'Не удалось очистить корзину'));
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert('Ошибка соединения с сервером');
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

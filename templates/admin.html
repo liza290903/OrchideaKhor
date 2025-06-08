@@ -1,0 +1,577 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="admin-container">
+    <h2 class="admin-title"><i class="fas fa-crown"></i> Панель администратора</h2>
+
+    <div class="admin-tabs">
+        <button class="tab-btn active" data-tab="products-tab">Товары</button>
+        <button class="tab-btn" data-tab="orders-tab">Заказы</button>
+    </div>
+
+    <!-- Вкладка товаров -->
+    <div id="products-tab" class="tab-content active">
+        <div class="admin-sections">
+            <!-- Секция добавления товара -->
+            <section class="admin-section add-product-section">
+                <h3 class="section-title"><i class="fas fa-plus-circle"></i> Добавить новый товар</h3>
+                <form action="{{ url_for('add_product') }}" method="post" enctype="multipart/form-data" class="product-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name">Название*</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="price">Цена*</label>
+                            <input type="number" id="price" name="price" step="0.01" min="0" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Описание</label>
+                        <textarea id="description" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="image">Изображение*</label>
+                        <input type="file" id="image" name="image" accept="image/*" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="category">Категория*</label>
+                        <select id="category" name="category" required class="form-control">
+                            <option value="Букеты">Букеты</option>
+                            <option value="Мягкие игрушки">Мягкие игрушки</option>
+                            <option value="Шарики">Шарики</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-add">
+                        <i class="fas fa-save"></i> Сохранить товар
+                    </button>
+                </form>
+            </section>
+
+            <!-- Секция списка товаров -->
+            <section class="admin-section products-section">
+                <div class="section-header">
+                    <h3 class="section-title"><i class="fas fa-list"></i> Все товары ({{ products|length }})</h3>
+
+                    <div class="search-box">
+                        <input type="text" placeholder="Поиск по названию..." id="product-search">
+                        <i class="fas fa-search"></i>
+                    </div>
+
+                    <!-- Фильтры -->
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" data-filter="all">Все</button>
+                        <button class="filter-btn" data-filter="Букеты">Букеты</button>
+                        <button class="filter-btn" data-filter="Шарики">Шарики</button>
+                        <button class="filter-btn" data-filter="Мягкие игрушки">Мягкие игрушки</button>
+                        <button class="filter-btn" data-filter="bestseller">Хиты</button>
+                    </div>
+                </div>
+
+                
+                {% if not products %}
+                    <p class="no-items">Нет добавленных товаров</p>
+                {% else %}
+                    <div class="products-grid">
+                        {% for product in products %}
+                        <div class="product-card {% if product.is_bestseller %}bestseller{% endif %}" 
+                                data-product-id="{{ product.id }}" 
+                                data-category="{{ product.category }}" 
+                                data-bestseller="{{ 'yes' if product.is_bestseller else 'no' }}">
+                            <div class="product-image-container">
+                                <img src="{{ url_for('static', filename=product.image) }}" alt="{{ product.name }}" class="product-image">
+                                {% if product.is_bestseller %}
+                                <div class="bestseller-badge" title="Хит продаж">
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="product-details">
+                                <h4 class="product-name">{{ product.name }}</h4>
+                                <p class="product-price">{{ product.price }} руб.</p>
+                                <div class="product-meta">
+                                    <span class="product-id">ID: {{ product.id }}</span>
+                                    <span class="product-status {% if product.is_bestseller %}active{% endif %}">
+                                        {{ 'Хит' if product.is_bestseller else 'Обычный' }}
+                                    </span>
+                                </div>
+                                <div class="product-actions">
+                                    <form action="{{ url_for('toggle_bestseller', id=product.id) }}" method="post" class="toggle-form">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn btn-sm {% if product.is_bestseller %}btn-bestseller{% else %}btn-secondary{% endif %}">
+                                            <i class="fas fa-star"></i> {{ 'Убрать хит' if product.is_bestseller else 'Сделать хитом' }}
+                                        </button>
+                                    </form>
+                                    <a href="{{ url_for('edit_product_form', id=product.id) }}" class="btn btn-sm btn-edit">
+                                        <i class="fas fa-edit"></i> Изменить
+                                    </a>
+                                    <form action="{{ url_for('delete_product', id=product.id) }}" method="POST" class="delete-form">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn btn-sm btn-delete" onclick="return confirm('Вы уверены?')">
+                                            <i class="fas fa-trash-alt"></i> Удалить
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </section>
+        </div>
+    </div>
+
+    <!-- Вкладка заказов -->
+    <div id="orders-tab" class="tab-content">
+        <div class="orders-header">
+            <h3 class="section-title"><i class="fas fa-clipboard-list"></i> Заказы</h3>
+            <div class="search-box">
+                <input type="text" id="order-search" placeholder="Поиск по имени или телефону...">
+                <i class="fas fa-search"></i>
+            </div>
+        </div>
+        
+        {% if not orders %}
+            <p class="no-items">Нет заказов</p>
+        {% else %}
+            <table class="orders-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Имя</th>
+                        <th>Телефон</th>
+                        <th>Сумма</th>
+                        <th>Дата</th>
+                        <th>Статус</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td>#{{ order.id }}</td>
+                        <td>{{ order.customer_name }}</td>
+                        <td>{{ order.phone }}</td>
+                        <td>{{ order.total }} руб.</td>
+                        <td>{{ order.order_date.strftime('%d.%m.%Y %H:%M') }}</td>
+                        <td>
+                            <span class="status-badge {{ order.status.lower() }}">
+                                {{ order.status }}
+                            </span>
+                        </td>
+                        <td class="order-actions">
+                            <a href="{{ url_for('view_order', order_id=order.id) }}" 
+                               class="btn btn-sm btn-view" 
+                               title="Просмотр">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <form action="{{ url_for('update_order_status', order_id=order.id, status='completed') }}" 
+                                  method="POST" 
+                                  class="d-inline">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" 
+                                        class="btn btn-sm btn-complete" 
+                                        title="Выполнен"
+                                        {% if order.status == 'Выполнен' %}disabled{% endif %}>
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            </form>
+                            <form action="{{ url_for('update_order_status', order_id=order.id, status='cancelled') }}" 
+                                  method="POST" 
+                                  class="d-inline">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" 
+                                        class="btn btn-sm btn-cancel" 
+                                        title="Отменен"
+                                        {% if order.status == 'Отменен' %}disabled{% endif %}>
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('product-search');
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const productCards = document.querySelectorAll('.product-card');
+
+    function applyFilters() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+
+        productCards.forEach(card => {
+            const name = card.querySelector('.product-name').textContent.toLowerCase();
+            const category = card.dataset.category;
+            const isBestseller = card.dataset.bestseller === 'yes';
+
+            let matchesSearch = name.includes(searchTerm);
+            let matchesFilter = (
+                activeFilter === 'all' ||
+                (activeFilter === 'bestseller' && isBestseller) ||
+                activeFilter === category
+            );
+
+            card.style.display = (matchesSearch && matchesFilter) ? '' : 'none';
+        });
+    }
+
+    searchInput.addEventListener('input', applyFilters);
+
+    filterButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            filterButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            applyFilters();
+        });
+    });
+});
+</script>
+
+<script>
+    // Активация вкладки при загрузке
+    document.addEventListener('DOMContentLoaded', function() {
+        // Получаем параметр tab из URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const activeTab = urlParams.get('tab') || 'products';
+        
+        // Определяем ID вкладки
+        const tabId = activeTab === 'orders' ? 'orders-tab' : 'products-tab';
+        const tabBtn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+        
+        if (tabBtn) {
+            // Деактивируем все вкладки
+            document.querySelectorAll('.tab-btn, .tab-content').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            // Активируем нужную вкладку
+            tabBtn.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // Обработчики для кнопок вкладок
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const tab = this.dataset.tab === 'orders-tab' ? 'orders' : 'products';
+                // Обновляем URL без перезагрузки страницы
+                history.replaceState(null, null, `?tab=${tab}`);
+                
+                document.querySelectorAll('.tab-btn, .tab-content').forEach(el => {
+                    el.classList.remove('active');
+                });
+                this.classList.add('active');
+                document.getElementById(this.dataset.tab).classList.add('active');
+            });
+        });
+
+        // Остальные обработчики (поиск и т.д.)...
+    });
+</script>
+
+<style>
+.admin-tabs {
+    display: flex;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 20px;
+}
+
+.tab-btn {
+    padding: 10px 20px;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s;
+}
+
+.tab-btn.active {
+    border-bottom-color: #e83e8c;
+    color: #e83e8c;
+    font-weight: bold;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.orders-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.search-box {
+    position: relative;
+    width: 300px;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 8px 15px 8px 35px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.search-box i {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #777;
+}
+
+.orders-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.orders-table th, .orders-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.orders-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.status-badge.новый {
+    background-color: #ffc107;
+    color: #000;
+}
+
+.status-badge.выполнен {
+    background-color: #28a745;
+    color: white;
+}
+
+.status-badge.отменен {
+    background-color: #dc3545;
+    color: white;
+}
+
+.order-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.btn-view {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.btn-complete {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-cancel {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-delete {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-bestseller {
+    background-color: #ffc107;
+    color: #000;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-sm {
+    padding: 5px 10px;
+    font-size: 0.85rem;
+}
+
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.product-card {
+    border: 1px solid #eee;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s;
+}
+
+.product-card:hover {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+.product-image-container {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+}
+
+.product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+}
+
+.product-card:hover .product-image {
+    transform: scale(1.05);
+}
+
+.bestseller-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #ffc107;
+    color: #000;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.product-details {
+    padding: 15px;
+}
+
+.product-name {
+    margin: 0 0 10px 0;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.product-price {
+    margin: 0;
+    font-weight: bold;
+    color: #e83e8c;
+    font-size: 1.2rem;
+}
+
+.product-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    font-size: 0.8rem;
+    color: #777;
+}
+
+.product-actions {
+    display: flex;
+    gap: 5px;
+    margin-top: 15px;
+}
+
+.no-items {
+    color: #777;
+    text-align: center;
+    padding: 20px;
+    font-size: 1.1rem;
+}
+
+.btn-add {
+    background-color: #28a745;
+    color: white;
+    padding: 10px 20px;
+    font-size: 1rem;
+}
+
+.btn-edit {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.section-title {
+    color: #333;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.section-title i {
+    color: #e83e8c;
+}
+.btn-delete {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+}
+
+.btn-delete:hover {
+    background-color: #c82333;
+}
+.product-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.filter-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 6px 12px;
+    background-color: #eee;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.filter-btn.active {
+    background-color: #e83e8c;
+    color: #fff;
+    font-weight: bold;
+}
+.add-product-section .form-group input,
+.add-product-section .form-group select,
+.add-product-section .form-group textarea {
+    max-width: 400px;
+    width: 100%;
+    box-sizing: border-box;
+}
+.filter-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px; /* добавлен отступ вниз от поля поиска */
+}
+
+
+</style>
+{% endblock %}

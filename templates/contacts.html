@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="contacts-page"> <!-- Добавлен новый класс-обертка -->
+    <div class="contacts-container">
+        <h1><i class="fas fa-address-card"></i> Контакты</h1>
+        
+        <div class="contacts-content"> <!-- Изменен класс с contact-info -->
+            <div class="contact-item">
+                <i class="fas fa-map-marker-alt"></i>
+                <div class="contact-text">
+                    <h3>Фактический адрес:</h3>
+                    <p>682920, пос. Хор, ул. Ленина, д. 19</p>
+                </div>
+            </div>
+            
+            <div class="contact-item">
+                <i class="fas fa-envelope"></i>
+                <div class="contact-text">
+                    <h3>Электронная почта:</h3>
+                    <p>bichckowa.elena2015@gmail.com</p>
+                </div>
+            </div>
+            
+            <div class="contact-item">
+                <i class="fas fa-phone"></i>
+                <div class="contact-text">
+                    <h3>Телефон:</h3>
+                    <p>8-999-085-05-73</p>
+                </div>
+            </div>
+            
+            <!-- Яндекс Карта -->
+            <div class="map-container">
+                <div id="yandex-map"></div>
+            </div>
+            
+            <div class="requisites">
+                <h3>Реквизиты:</h3>
+                <p>Индивидуальный предприниматель АРХИПОВА МАРИНА ВЛАДИМИРОВНА</p>
+                <p>ИНН организации: 271302000383</p>
+                <p>ОГРНИП: 305271302400015</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Изолируем стили страницы контактов */
+.contacts-page {
+    font-family: Arial, sans-serif;
+    background-color: #fff0e8;
+    min-height: 100vh;
+    padding: 20px 0;
+}
+
+.contacts-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.contacts-content {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.contact-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.contact-item i {
+    font-size: 1.5rem;
+    color: #e83e8c;
+    margin-right: 20px;
+    width: 30px;
+    text-align: center;
+}
+
+.contact-text {
+    flex: 1;
+}
+
+.contact-text h3 {
+    margin: 0 0 5px 0;
+    color: #333;
+    font-size: 1.1rem;
+}
+
+.contact-text p {
+    margin: 0;
+    color: #555;
+}
+
+.map-container {
+    margin: 30px 0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    height: 400px;
+    position: relative;
+}
+
+#yandex-map {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.requisites {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.requisites h3 {
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.requisites p {
+    margin: 5px 0;
+    color: #555;
+}
+
+@media (max-width: 576px) {
+    .contact-item {
+        flex-direction: column;
+    }
+    
+    .contact-item i {
+        margin-bottom: 10px;
+        margin-right: 0;
+    }
+    
+    .map-container,
+    #yandex-map {
+        height: 300px;
+    }
+}
+</style>
+
+<!-- Подключение Яндекс Карт -->
+<script src="https://api-maps.yandex.ru/2.1/?apikey=3b1961ab-fee4-4202-b86a-a57187691614&lang=ru_RU" type="text/javascript"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function initMap() {
+        try {
+            var shopLocation = [47.885006, 134.963275];
+            
+            var map = new ymaps.Map('yandex-map', {
+                center: shopLocation,
+                zoom: 16,
+                controls: ['zoomControl']
+            });
+            
+            var shopMarker = new ymaps.Placemark(shopLocation, {
+                hintContent: 'Цветочный магазин "Орхидея"',
+                balloonContent: '682920, пос. Хор, ул. Ленина, д. 19'
+            }, {
+                preset: 'islands#pinkDotIcon'
+            });
+            
+            map.geoObjects.add(shopMarker);
+            shopMarker.options.set('hideIconOnBalloonOpen', false);
+            shopMarker.events.add('mouseenter', function() {
+                shopMarker.balloon.open();
+            });
+        } catch (e) {
+            console.error('Ошибка при инициализации карты:', e);
+            showStaticMap();
+        }
+    }
+    
+    function showStaticMap() {
+        var mapContainer = document.getElementById('yandex-map');
+        if (mapContainer) {
+            mapContainer.innerHTML = 
+                '<img src="https://static-maps.yandex.ru/1.x/?ll=134.963275,47.885006&z=16&size=600,400&l=map&pt=134.963275,47.885006,pm2rdl" ' +
+                'alt="Карта" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">';
+        }
+    }
+    
+    function checkYmaps() {
+        if (typeof ymaps !== 'undefined') {
+            ymaps.ready(initMap);
+        } else {
+            setTimeout(checkYmaps, 500);
+        }
+    }
+    
+    checkYmaps();
+});
+</script>
+{% endblock %}

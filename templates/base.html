@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Цветочный магазин "Орхидея"</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Arial:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        
+         body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #faece6;
+        }
+
+        /* Стили для шапки */
+        header {
+            background-color: #ffffff; /* Светло-серый фон */
+            box-shadow: 0 2px 15px rgb(255, 157, 108);
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0px 0px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            display: flex;
+            align-items: baseline; /* Выравниваем по базовой линии */
+        }
+        .logo h1 {
+            font-family: 'Playfair Display', serif;
+            color: #333;
+            margin: 0;
+            font-size: 2.9rem;
+            line-height: 1;
+            letter-spacing: 1.1px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+            position: relative;
+            margin-top: -50px;
+        }
+        .logo-icon {
+            color: #f16262;
+            font-size: 2.5rem;
+            margin-right: 5px;
+            align-self: center; /* Центрируем иконку по вертикали */
+            position: relative;
+            top: -0.7em; /* Слегка опускаем иконку */
+        }
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+        .logo p {
+            margin: 5px 0 0;
+            color: #404040;
+            font-size: 1rem;
+            font-style: italic;
+        }
+        .logo h1::after {
+            content: "";
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            
+        }
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 5px;
+        }
+
+        .working-hours-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #555;
+            font-size: 0.9em;
+        }
+
+        .working-hours-header i {
+            color: #e83e8c;
+        }
+
+        .phone-link {
+            color: #25D366;
+            text-decoration: none;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.1em;
+        }
+
+        .phone-link i {
+            font-size: 1.2em;
+        }
+
+        .address {
+            color: #555;
+            font-size: 0.9em;
+        }
+
+        /* Навигационное меню */
+        nav {
+            background-color: #f8f8f8;
+            border-top: 1px solid #ddd;
+            border-bottom: 1px solid #ddd;
+        }
+
+        nav ul {
+            max-width: 12000px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            list-style: none;
+        }
+
+        nav li {
+            position: relative;
+        }
+
+        nav a {
+            display: block;
+            padding: 15px 20px;
+            color: #333;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: #e83e8c;
+        }
+        .cart-link {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .cart-counter {
+            background-color: #e83e8c;
+            color: rgb(255, 255, 255);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            color: white;
+            max-width: 90%;
+            text-align: center;
+        }
+        
+        .toast.success {
+            background-color: #28a745;
+        }
+        
+        .toast.error {
+            background-color: #dc3545;
+        }
+        
+        .toast.show {
+            opacity: 1;
+        }
+
+        /* Стили для WhatsApp ссылки */
+        .phone-link {
+            color: #25D366; /* Зеленый цвет WhatsApp */
+            text-decoration: none;
+            font-size: 1.1em; /* Увеличиваем размер текста */
+            font-weight: bold; /* Делаем текст жирным */
+            display: flex;
+            align-items: center;
+            gap: 8px; /* Увеличиваем расстояние между иконкой и текстом */
+            transition: opacity 0.3s;
+        }
+
+        .phone-link:hover {
+            opacity: 0.8; /* Легкое затемнение при наведении */
+        }
+
+        .phone-link i {
+            font-size: 1.3em; /* Увеличиваем размер иконки */
+        }
+
+        /* Увеличиваем размер контактной информации в шапке */
+        .contact-info {
+            font-size: 1.1em;
+        }
+
+        .contact-info .address {
+            margin-top: 5px;
+        }
+
+        footer {
+            background-color: #161616f5;
+            color: #ffffff;
+            padding: 40px 0 20px;
+            margin-top: 50px;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .footer-section {
+            margin-bottom: 20px;
+        }
+
+        .footer-section h3 {
+            color: #fff;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            position: relative;
+            padding-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .footer-section h3::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 50px;
+            height: 2px;
+            background-color: #ff4a71;
+        }
+
+        .footer-section p, .footer-section a {
+            color: #ffffff;
+            line-height: 1.6;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .footer-section a:hover {
+            color: #fff;
+        }
+
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .payment-method {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+        }
+
+        .payment-icon {
+            width: 30px;
+            height: 20px;
+            object-fit: contain;
+        }
+
+        .whatsapp-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .whatsapp-button {
+            background-color: #25D366;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 30px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+            margin: 15px 0;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .whatsapp-button:hover {
+            background-color: #128C7E;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .working-hours {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .copyright {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: #ffffff;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .footer-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .payment-methods {
+                grid-template-columns: 1fr;
+            }
+        }
+        .home-background {
+    background-image: url("/static/images/background.jpg"); /* Путь к твоему фону */
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-attachment: fixed;
+    color: #fff;
+}
+
+.home-background main,
+.home-background header,
+.home-background footer {
+    background-color: rgba(0, 0, 0, 0.6); /* прозрачный фон блоков */
+    color: #fff;
+}
+
+.home-background a {
+    color: #ffde59;
+}
+
+.home-background a:hover {
+    color: #ffffff;
+}
+
+    </style>
+</head>
+<body class="{% if page == 'home' %}home-background{% endif %}">
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-spa"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>Орхидея</h1>
+                    <p>Цветочный магазин</p>
+                </div>
+            </div>
+            <div class="contact-info">
+                <div class="working-hours-header">
+                    <i class="far fa-clock"></i>
+                    <span>9:00 - 19:00</span>
+                </div>
+                <a href="https://wa.me/79990850573" class="phone-link" target="_blank" rel="noopener noreferrer">
+                    <i class="fab fa-whatsapp"></i>
+                    +7 (999) 085-05-73
+                </a>
+                <div class="address">р.п. Хор, ул. Ленина 19</div>
+            </div>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('index') }}">Главная</a></li>
+                <li><a href="{{ url_for('catalog') }}">Каталог</a></li>
+                <li><a href="{{ url_for('about') }}">О нас</a></li>
+                <li><a href="{{ url_for('contacts') }}">Контакты</a></li>
+                <li>
+                    <a href="{{ url_for('cart') }}" class="cart-link">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-counter">
+                            {% if session.get('cart') %}
+                                {{ session.cart.values()|sum(attribute='quantity') }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </span>
+                    </a>
+                </li>
+                {% if session.get('admin_logged_in') %}
+                <li><a href="{{ url_for('admin_panel') }}">Админ-панель</a></li>
+                <li><a href="{{ url_for('admin_logout') }}">Выйти</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>Режим работы</h3>
+                <div class="working-hours">
+                    <i class="far fa-clock"></i>
+                    <spanp>Ежедневно: 9:00 - 19:00</span>
+                </div>
+                <p>Без перерывов и выходных</p>
+            </div>
+            
+            <div class="footer-section whatsapp-center">
+                <h3>Свяжитесь с нами</h3>
+                <a href="https://wa.me/79990850573" class="whatsapp-button" target="_blank" rel="noopener noreferrer">
+                    <i class="fab fa-whatsapp"></i> Написать в WhatsApp
+                </a>
+                <p>Ответим в течение 5 минут</p>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Способы оплаты</h3>
+                <div class="payment-methods">
+                    <div class="payment-method">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/b/b9/Mir-logo.SVG.svg" alt="МИР" class="payment-icon">
+                        <span>МИР</span>
+                    </div>
+                    <div class="payment-method">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/2560px-Visa_Inc._logo.svg.png" alt="VISA" class="payment-icon">
+                        <span>VISA</span>
+                    </div>
+                    <div class="payment-method">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/1280px-Mastercard-logo.svg.png" alt="Mastercard" class="payment-icon">
+                        <span>Mastercard</span>
+                    </div>
+                    <div class="payment-method">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/1/13/Apple_Pay_Acceptance_Mark.svg" alt="Apple Pay" class="payment-icon">
+                        <span>Apple Pay</span>
+                    </div>
+                    <div class="payment-method">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/7/7e/Samsung_Pay_icon.svg" alt="Samsung Pay" class="payment-icon">
+                        <span>Samsung Pay</span>
+                    </div>
+                    <div class="payment-method">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/d/d4/Google-pay-acceptance-mark-icon.svg" alt="Google Pay" class="payment-icon">
+                        <span>Google Pay</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="copyright">
+            <p>&copy; 2023 Цветочный магазин "Орхидея". Все права защищены.</p>
+            <p>р.п. Хор, ул. Ленина 19</p>
+        </div>
+    </footer>
+
+    <script>
+        // Универсальная функция для добавления в корзину
+        async function addToCart(productId, productName, productPrice, productImage) {
+            try {
+                const response = await fetch("{{ url_for('add_to_cart') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({
+                        product_id: productId,
+                        name: productName,
+                        price: productPrice,
+                        image: productImage
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Обновляем счетчик корзины
+                    updateCartCounter(result.cart_count);
+                    showToast(`${productName} добавлен в корзину!`, 'success');
+                } else {
+                    showToast(result.error || 'Ошибка при добавлении в корзину', 'error');
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                showToast('Ошибка соединения с сервером', 'error');
+            }
+        }
+
+        // Функция обновления счетчика корзины
+        function updateCartCounter(count) {
+            const counter = document.querySelector('.cart-counter');
+            if (counter) {
+                counter.textContent = count;
+                counter.style.display = count > 0 ? 'flex' : 'none';
+            }
+        }
+
+        // Функция показа уведомлений
+        function showToast(message, type = 'success') {
+            // Удаляем предыдущие уведомления
+            document.querySelectorAll('.toast').forEach(toast => toast.remove());
+            
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Инициализация корзины при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            // Можно добавить дополнительную инициализацию при необходимости
+        });
+    </script>
+</body>
+</html>
